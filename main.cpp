@@ -6,9 +6,11 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 960;
 const int SQUARE = 20;
+const int FPS = 120;
+const int FRAMETIME = 1000 / FPS;
 
 
 void drawrect(SDL_Renderer *ren, int x, int y, int w, int h) {
@@ -51,7 +53,7 @@ void fillrect(SDL_Renderer *ren, int x, int y, int w, int h, int r, int g, int b
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
 }
 
-void draw(SDL_Renderer *ren, int maderect[40][30], int delay) {
+void draw(SDL_Renderer *ren, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE], int delay) {
      for(int i = 0; i <= SCREEN_WIDTH; i += SQUARE) {
             for(int y = 0; y <= SCREEN_HEIGHT; y += SQUARE) {
                 if(maderect[i / SQUARE][y / SQUARE] == 1) {
@@ -79,8 +81,8 @@ void draw(SDL_Renderer *ren, int maderect[40][30], int delay) {
     SDL_RenderPresent(ren);
 }
 
-void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int dist[40][30], int maderect[40][30]) {
-    bool visted[40][30] = {false};
+void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE], int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
+    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
     int vertx, verty, cdist;
 
     queue<int> que[2];
@@ -103,7 +105,7 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
             break;
         }
 
-        if(visted[vertx + 1][verty] == false && vertx + 1 < 40 && dist[vertx + 1][verty] < cdist && maderect[vertx + 1][verty] != 1) {
+        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && dist[vertx + 1][verty] < cdist && maderect[vertx + 1][verty] != 1) {
             que[0].push(vertx + 1);
             que[1].push(verty);
             visted[vertx + 1][verty] = true;
@@ -121,7 +123,7 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
             visted[vertx][verty - 1] = true;
             maderect[vertx][verty - 1] = 5;
         }
-        else if(visted[vertx][verty + 1] == false && verty + 1 < 30 && dist[vertx][verty + 1] < cdist &&  maderect[vertx][verty + 1] != 1) {
+        else if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && dist[vertx][verty + 1] < cdist &&  maderect[vertx][verty + 1] != 1) {
             que[0].push(vertx);
             que[1].push(verty + 1);
             visted[vertx][verty + 1] = true;
@@ -133,15 +135,15 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
 }
 
 
-void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[40][30]) {
-    bool visted[40][30] = {false};
-    int vertx, verty, dist[40][30] = {0};
+void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
+    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
+    int vertx, verty, dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0};
     queue<int> que[2];
     que[0].push(starting.x);
     que[1].push(starting.y);
 
-    for(int i = 0; i < 40; i++)
-        for(int x = 0; x < 30; x++)
+    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
+        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
                 maderect[i][x] = 0;
 
@@ -160,7 +162,7 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[4
             break;
         }
 
-        if(visted[vertx + 1][verty] == false && vertx + 1 < 40 && maderect[vertx + 1][verty] != 1) {
+        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && maderect[vertx + 1][verty] != 1) {
             que[0].push(vertx + 1);
             que[1].push(verty);
             visted[vertx + 1][verty] = true;
@@ -184,7 +186,7 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[4
                 maderect[vertx][verty - 1] = 4;
             dist[vertx][verty - 1] = dist[vertx][verty] + 1;
         }
-        if(visted[vertx][verty + 1] == false && verty + 1 < 30 && maderect[vertx][verty + 1] != 1) {
+        if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && maderect[vertx][verty + 1] != 1) {
             que[0].push(vertx);
             que[1].push(verty + 1);
             visted[vertx][verty + 1] = true;
@@ -195,8 +197,8 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[4
         draw(ren, maderect, 0);
 
     }
-    for(int i = 0; i < 40; i++)
-        for(int x = 0; x < 30; x++)
+    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
+        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
             if(dist[i][x] == 0)
                 dist[i][x] = 999;
     shortestdist(ren, starting, ending, dist, maderect);
@@ -205,10 +207,11 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[4
 
 int main () {
     SDL_Window *win = SDL_CreateWindow("Grid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
     SDL_Event e;
-    bool quit = false, startingpoint = false, endingpoint = false;;
-    int maderect[40][30] = {0};
+    Uint32 starttime, endtime, delta;
+    bool quit = false, startingpoint = false, endingpoint = false;
+    int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0};
     SDL_Point mouse = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2}, starting, ending;
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
 
@@ -216,6 +219,7 @@ int main () {
     SDL_RenderPresent(ren);
 
     while(!quit) {
+        starttime = SDL_GetTicks();
         SDL_RenderClear(ren);
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) {
@@ -262,14 +266,19 @@ int main () {
                 bfs(ren, starting, ending, maderect);
             }
             if(keystates[SDL_SCANCODE_D]) {
-                for(int i = 0; i < 40; i++) {
-                    for(int x = 0; x < 30; x++) {
+                for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++) {
+                    for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++) {
                         maderect[i][x] = 0;
                     }
                 }
                 startingpoint = false;
                 endingpoint = false;
             }
+        }
+        endtime = SDL_GetTicks();
+        delta = endtime - starttime;
+        if(delta < FRAMETIME){
+            SDL_Delay(FRAMETIME - delta);
         }
 
         draw(ren, maderect, 0);
