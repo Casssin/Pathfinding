@@ -8,8 +8,6 @@ using namespace std;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int FPS = 300;
-const int FRAMEDELAY = 1000 / FPS;
 const int SQUARE = 20;
 
 
@@ -210,9 +208,8 @@ int main () {
     SDL_Window *win = SDL_CreateWindow("Grid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     SDL_Event e;
-    bool quit = false, startingpoint = false, endingpoint = false;
-    Uint32 framestart;
-    int frametime, maderect[40][30] = {0};
+    bool quit = false, startingpoint = false, endingpoint = false;;
+    int maderect[40][30] = {0};
     SDL_Point mouse = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2}, starting, ending;
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
 
@@ -220,7 +217,6 @@ int main () {
     SDL_RenderPresent(ren);
 
     while(!quit) {
-        framestart = SDL_GetTicks();
         SDL_RenderClear(ren);
         while(SDL_PollEvent(&e)) {
             if(e.type == SDL_QUIT) {
@@ -278,13 +274,6 @@ int main () {
         }
 
         draw(ren, maderect, 0);
-
-        frametime = SDL_GetTicks() - framestart;
-        /*
-        if(FRAMEDELAY > frametime)  {
-            SDL_Delay(FRAMEDELAY - frametime);
-        }
-        */
     }
 
 
