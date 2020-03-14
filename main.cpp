@@ -55,7 +55,6 @@ void draw(SDL_Renderer *ren, int maderect[40][30], int delay) {
      for(int i = 0; i <= SCREEN_WIDTH; i += SQUARE) {
             for(int y = 0; y <= SCREEN_HEIGHT; y += SQUARE) {
                 if(maderect[i / SQUARE][y / SQUARE] == 1) {
-                    //fillrect(ren, i, y, SQUARE, SQUARE, 64, 64, 64);
                     fillrect(ren, i + 1, y + 1, SQUARE - 2, SQUARE - 2, 64, 64, 64);
                 }
                 else if(maderect[i / SQUARE][y / SQUARE] == 2) {
