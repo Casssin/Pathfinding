@@ -1,15 +1,17 @@
 #include <iostream>
 #include <queue>
 #include <SDL2/SDL.h>
+#include <deque>
+#include <math.h>
 #undef main
 
 
 using namespace std;
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 960;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 const int SQUARE = 20;
-const int FPS = 120;
+const int FPS = 60;
 const int FRAMETIME = 1000 / FPS;
 
 
@@ -205,9 +207,96 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[S
 
 }
 
+void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
+    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
+    int vertx, verty, dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0}, best, index;
+    deque<int> que[3];
+    que[0].push_front(starting.x);
+    que[1].push_front(starting.y);
+
+    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
+        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+            if(maderect[i][x] == 4 || maderect[i][x] == 5)
+                maderect[i][x] = 0;
+
+
+    visted[starting.x][starting.y] = true;
+    que[2].push_front(pow(ending.x - starting.x, 2) + pow(ending.y - starting.y, 2));
+
+    while(!que[0].empty() || !que[1].empty()) {
+        best = 99999;
+
+        cout << que[0].size() << endl;
+        for(int i = 0; i <= que[0].size(); i++) {
+            if(que[2][i] <= best && que[2][i] != 0) {
+                vertx = que[0][i];
+                verty = que[1][i];
+                best = que[2][i];
+                index = i;
+            }
+        }
+
+        que[0].erase(que[0].begin() + index);
+        que[1].erase(que[1].begin() + index);
+        que[2].erase(que[2].begin() + index);
+
+        cout << vertx << " " << verty << " " << best << endl;
+
+        if(vertx == ending.x && verty == ending.y) {
+            cout << "worked" << endl;
+            maderect[vertx][verty] = 3;
+            cout << "break" << endl;
+            break;
+        }
+
+        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && maderect[vertx + 1][verty] != 1) {
+            que[0].push_back(vertx + 1);
+            que[1].push_back(verty);
+            visted[vertx + 1][verty] = true;
+            if(maderect[vertx + 1][verty] != 3)
+                maderect[vertx + 1][verty] = 4;
+            dist[vertx + 1][verty] = dist[vertx][verty] + 1;
+            que[2].push_back(dist[vertx + 1][verty] + pow((vertx + 1 - ending.x), 2) + pow((verty - ending.y), 2));
+        }
+        if(visted[vertx - 1][verty] == false && vertx - 1 >= 0 && maderect[vertx - 1][verty] != 1) {
+            que[0].push_back(vertx - 1);
+            que[1].push_back(verty);
+            visted[vertx - 1][verty] = true;
+            if(maderect[vertx - 1][verty] != 3)
+                maderect[vertx - 1][verty] = 4;
+            dist[vertx - 1][verty] = dist[vertx][verty] + 1;
+           que[2].push_back(dist[vertx - 1][verty] + pow((vertx - 1 - ending.x), 2) + pow((verty - ending.y), 2));
+        }
+        if(visted[vertx][verty - 1] == false && verty - 1 >= 0 && maderect[vertx][verty - 1] != 1) {
+            que[0].push_back(vertx);
+            que[1].push_back(verty - 1);
+            visted[vertx][verty - 1] = true;
+            if(maderect[vertx][verty - 1] != 3)
+                maderect[vertx][verty - 1] = 4;
+            dist[vertx][verty - 1] = dist[vertx][verty] + 1;
+            que[2].push_back(dist[vertx][verty - 1] + pow((vertx - ending.x), 2) + pow((verty - 1 - ending.y), 2));
+        }
+        if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && maderect[vertx][verty + 1] != 1) {
+            que[0].push_back(vertx);
+            que[1].push_back(verty + 1);
+            visted[vertx][verty + 1] = true;
+            if(maderect[vertx][verty + 1] != 3)
+                maderect[vertx][verty + 1] = 4;
+            dist[vertx][verty + 1] = dist[vertx][verty] + 1;
+           que[2].push_back(dist[vertx][verty + 1] + pow((vertx - ending.x), 2) + pow((verty + 1 - ending.y), 2));
+        }
+        draw(ren, maderect, 0);
+    }
+    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
+        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+            if(dist[i][x] == 0)
+                dist[i][x] = 999;
+    shortestdist(ren, starting, ending, dist, maderect);
+}
+
 int main () {
     SDL_Window *win = SDL_CreateWindow("Grid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
     SDL_Event e;
     Uint32 starttime, endtime, delta;
     bool quit = false, startingpoint = false, endingpoint = false;
@@ -262,8 +351,11 @@ int main () {
                     maderect[mouse.x / SQUARE][mouse.y / SQUARE] = 0;
                 }
             }
-            if(keystates[SDL_SCANCODE_1]) {
+            if(keystates[SDL_SCANCODE_1] && starting.x != NULL && starting.y != NULL  && ending.x != NULL && ending.y != NULL) {
                 bfs(ren, starting, ending, maderect);
+            }
+            if(keystates[SDL_SCANCODE_2] && starting.x != NULL && starting.y != NULL  && ending.x != NULL && ending.y != NULL) {
+                astar(ren, starting, ending, maderect);
             }
             if(keystates[SDL_SCANCODE_D]) {
                 for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++) {
@@ -271,6 +363,11 @@ int main () {
                         maderect[i][x] = 0;
                     }
                 }
+                
+                starting.x = NULL;
+                starting.y = NULL;
+                ending.x = NULL;
+                ending.y = NULL;
                 startingpoint = false;
                 endingpoint = false;
             }
