@@ -55,7 +55,7 @@ void fillrect(SDL_Renderer *ren, int x, int y, int w, int h, int r, int g, int b
     SDL_SetRenderDrawColor(ren, r, g, b, 255);
     SDL_RenderFillRect(ren, &rect);
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
-}
+} 
 
 void draw(SDL_Renderer *ren, int maderect[W_SQUARES][H_SQUARES], int delay) {
      for(int i = 0; i <= SCREEN_WIDTH; i += SQUARE) {
@@ -99,7 +99,6 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
         vertx = que[0].front();
         verty = que[1].front();
         cdist = dist[vertx][verty];
-        cout << vertx << " " << verty << " " << cdist << endl;
         
         que[0].pop();
         que[1].pop();
@@ -161,7 +160,6 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[W
         que[1].pop();
 
         if(vertx == ending.x && verty == ending.y) {
-            cout << "worked" << endl;
             maderect[vertx][verty] = 3;
             break;
         }
@@ -216,8 +214,6 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
     que[0].push_front(starting.x);
     que[1].push_front(starting.y);
 
-    cout << ending.x << " " << ending.y << endl;
-
     for(int i = 0; i < W_SQUARES; i++)
         for(int x = 0; x < H_SQUARES; x++)
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
@@ -229,7 +225,6 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
     while(!que[0].empty() || !que[1].empty()) {
         best = 99999;
 
-        cout << que[0].size() << endl;
         for(int i = 0; i < que[0].size(); i++) {
             if(que[2][i] <= best && que[2][i] != 0) {
                 vertx = que[0][i];
@@ -243,12 +238,8 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
         que[1].erase(que[1].begin() + index);
         que[2].erase(que[2].begin() + index);
 
-        cout << vertx << " " << verty << " " << best << endl;
-
         if(vertx == ending.x && verty == ending.y) {
-            cout << "worked" << endl;
             maderect[vertx][verty] = 3;
-            cout << "break" << endl;
             break;
         }
 
@@ -295,17 +286,11 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
             if(dist[i][x] == 0)
                 dist[i][x] = 999;
     shortestdist(ren, starting, ending, dist, maderect);
-    for(int i = 0; i < W_SQUARES; i++)
-        for(int x = 0; x < H_SQUARES; x++)
-            dist[i][x] = 0;
-    que[0].erase(que[0].begin(), que[0].end());
-    que[1].erase(que[0].begin(), que[0].end());
-    que[2].erase(que[0].begin(), que[0].end());
 }
 
 int main () {
     SDL_Window *win = SDL_CreateWindow("Grid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 0);
+    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
     SDL_Event e;
     Uint32 starttime, endtime, delta;
     bool quit = false, startingpoint = false, endingpoint = false;
@@ -342,7 +327,6 @@ int main () {
                         endingpoint = true;
                         ending.x = mouse.x / SQUARE;
                         ending.y = mouse.y / SQUARE;
-                        cout << ending.x << " " << ending.y << endl;
                     }
                     else if(keystates[SDL_SCANCODE_X]) {
                         maderect[mouse.x / SQUARE][mouse.y / SQUARE] = 0;
@@ -388,9 +372,11 @@ int main () {
         }
         endtime = SDL_GetTicks();
         delta = endtime - starttime;
+        /*
         if(delta < FRAMETIME){
             SDL_Delay(FRAMETIME - delta);
         }
+        */
         draw(ren, maderect, 0);
     }
 
