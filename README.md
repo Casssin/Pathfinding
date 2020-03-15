@@ -10,4 +10,4 @@ Z: Add ending point <br>
 X: Delete point (Must delete starting/ending point in order to create another one) <br>
 D: Erase board <br>
 1: Start the Dijkstra's pathfinding algorithim <br>
-2: Start the a* pathfinding algorithim (still buggy)<br>
+2: Start the a* pathfinding algorithim<br>

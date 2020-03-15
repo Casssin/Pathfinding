@@ -229,7 +229,7 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
 
         cout << que[0].size() << endl;
         for(int i = 0; i < que[0].size(); i++) {
-            if(que[2][i] <= best) {
+            if(que[2][i] <= best && que[2][i] != 0) {
                 vertx = que[0][i];
                 verty = que[1][i];
                 best = que[2][i];
@@ -386,11 +386,9 @@ int main () {
         }
         endtime = SDL_GetTicks();
         delta = endtime - starttime;
-        /*
         if(delta < FRAMETIME){
             SDL_Delay(FRAMETIME - delta);
         }
-        */
         draw(ren, maderect, 0);
     }
 
