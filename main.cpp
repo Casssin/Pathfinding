@@ -8,11 +8,13 @@
 
 using namespace std;
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1280;
+const int SCREEN_HEIGHT = 760;
 const int SQUARE = 20;
 const int FPS = 60;
 const int FRAMETIME = 1000 / FPS;
+const int W_SQUARES = SCREEN_WIDTH / SQUARE;
+const int H_SQUARES = SCREEN_HEIGHT / SQUARE;
 
 
 void drawrect(SDL_Renderer *ren, int x, int y, int w, int h) {
@@ -55,7 +57,7 @@ void fillrect(SDL_Renderer *ren, int x, int y, int w, int h, int r, int g, int b
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
 }
 
-void draw(SDL_Renderer *ren, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE], int delay) {
+void draw(SDL_Renderer *ren, int maderect[W_SQUARES][H_SQUARES], int delay) {
      for(int i = 0; i <= SCREEN_WIDTH; i += SQUARE) {
             for(int y = 0; y <= SCREEN_HEIGHT; y += SQUARE) {
                 if(maderect[i / SQUARE][y / SQUARE] == 1) {
@@ -83,8 +85,8 @@ void draw(SDL_Renderer *ren, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT /
     SDL_RenderPresent(ren);
 }
 
-void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE], int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
-    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
+void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int dist[W_SQUARES][H_SQUARES], int maderect[W_SQUARES][H_SQUARES]) {
+    bool visted[W_SQUARES][H_SQUARES] = {false};
     int vertx, verty, cdist;
 
     queue<int> que[2];
@@ -107,7 +109,7 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
             break;
         }
 
-        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && dist[vertx + 1][verty] < cdist && maderect[vertx + 1][verty] != 1) {
+        if(visted[vertx + 1][verty] == false && vertx + 1 < W_SQUARES && dist[vertx + 1][verty] < cdist && maderect[vertx + 1][verty] != 1) {
             que[0].push(vertx + 1);
             que[1].push(verty);
             visted[vertx + 1][verty] = true;
@@ -125,7 +127,7 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
             visted[vertx][verty - 1] = true;
             maderect[vertx][verty - 1] = 5;
         }
-        else if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && dist[vertx][verty + 1] < cdist &&  maderect[vertx][verty + 1] != 1) {
+        else if(visted[vertx][verty + 1] == false && verty + 1 < H_SQUARES && dist[vertx][verty + 1] < cdist &&  maderect[vertx][verty + 1] != 1) {
             que[0].push(vertx);
             que[1].push(verty + 1);
             visted[vertx][verty + 1] = true;
@@ -137,15 +139,15 @@ void shortestdist(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int d
 }
 
 
-void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
-    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
-    int vertx, verty, dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0};
+void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[W_SQUARES][H_SQUARES]) {
+    bool visted[W_SQUARES][H_SQUARES] = {false};
+    int vertx, verty, dist[W_SQUARES][H_SQUARES] = {0};
     queue<int> que[2];
     que[0].push(starting.x);
     que[1].push(starting.y);
 
-    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
-        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+    for(int i = 0; i < W_SQUARES; i++)
+        for(int x = 0; x < H_SQUARES; x++)
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
                 maderect[i][x] = 0;
 
@@ -164,7 +166,7 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[S
             break;
         }
 
-        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && maderect[vertx + 1][verty] != 1) {
+        if(visted[vertx + 1][verty] == false && vertx + 1 < W_SQUARES && maderect[vertx + 1][verty] != 1) {
             que[0].push(vertx + 1);
             que[1].push(verty);
             visted[vertx + 1][verty] = true;
@@ -188,7 +190,7 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[S
                 maderect[vertx][verty - 1] = 4;
             dist[vertx][verty - 1] = dist[vertx][verty] + 1;
         }
-        if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && maderect[vertx][verty + 1] != 1) {
+        if(visted[vertx][verty + 1] == false && verty + 1 < H_SQUARES && maderect[vertx][verty + 1] != 1) {
             que[0].push(vertx);
             que[1].push(verty + 1);
             visted[vertx][verty + 1] = true;
@@ -199,25 +201,25 @@ void bfs(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[S
         draw(ren, maderect, 0);
 
     }
-    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
-        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+    for(int i = 0; i < W_SQUARES; i++)
+        for(int x = 0; x < H_SQUARES; x++)
             if(dist[i][x] == 0)
                 dist[i][x] = 999;
     shortestdist(ren, starting, ending, dist, maderect);
 
 }
 
-void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE]) {
-    bool visted[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {false};
-    int vertx, verty, dist[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0}, best, index;
+void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect[W_SQUARES][H_SQUARES]) {
+    bool visted[W_SQUARES][H_SQUARES] = {false};
+    int vertx, verty, dist[W_SQUARES][H_SQUARES] = {0}, best, index;
     deque<int> que[3];
     que[0].push_front(starting.x);
     que[1].push_front(starting.y);
 
     cout << ending.x << " " << ending.y << endl;
 
-    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
-        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+    for(int i = 0; i < W_SQUARES; i++)
+        for(int x = 0; x < H_SQUARES; x++)
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
                 maderect[i][x] = 0;
 
@@ -250,7 +252,7 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
             break;
         }
 
-        if(visted[vertx + 1][verty] == false && vertx + 1 < SCREEN_WIDTH / SQUARE && maderect[vertx + 1][verty] != 1) {
+        if(visted[vertx + 1][verty] == false && vertx + 1 < W_SQUARES && maderect[vertx + 1][verty] != 1) {
             que[0].push_back(vertx + 1);
             que[1].push_back(verty);
             visted[vertx + 1][verty] = true;
@@ -277,7 +279,7 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
             dist[vertx][verty - 1] = dist[vertx][verty] + 1;
             que[2].push_back(dist[vertx][verty - 1] + pow((vertx - ending.x), 2) + pow((verty - 1 - ending.y), 2));
         }
-        if(visted[vertx][verty + 1] == false && verty + 1 < SCREEN_HEIGHT / SQUARE && maderect[vertx][verty + 1] != 1) {
+        if(visted[vertx][verty + 1] == false && verty + 1 < H_SQUARES && maderect[vertx][verty + 1] != 1) {
             que[0].push_back(vertx);
             que[1].push_back(verty + 1);
             visted[vertx][verty + 1] = true;
@@ -288,13 +290,13 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
         }
         draw(ren, maderect, 0);
     }
-    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
-        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+    for(int i = 0; i < W_SQUARES; i++)
+        for(int x = 0; x < H_SQUARES; x++)
             if(dist[i][x] == 0)
                 dist[i][x] = 999;
     shortestdist(ren, starting, ending, dist, maderect);
-    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
-        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+    for(int i = 0; i < W_SQUARES; i++)
+        for(int x = 0; x < H_SQUARES; x++)
             dist[i][x] = 0;
     que[0].erase(que[0].begin(), que[0].end());
     que[1].erase(que[0].begin(), que[0].end());
@@ -307,7 +309,7 @@ int main () {
     SDL_Event e;
     Uint32 starttime, endtime, delta;
     bool quit = false, startingpoint = false, endingpoint = false;
-    int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0};
+    int maderect[W_SQUARES][H_SQUARES] = {0};
     SDL_Point mouse = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2}, starting, ending;
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
 
@@ -370,8 +372,8 @@ int main () {
                 astar(ren, starting, ending, maderect);
             }
             if(keystates[SDL_SCANCODE_D]) {
-                for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++) {
-                    for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++) {
+                for(int i = 0; i < W_SQUARES; i++) {
+                    for(int x = 0; x < H_SQUARES; x++) {
                         maderect[i][x] = 0;
                     }
                 }
