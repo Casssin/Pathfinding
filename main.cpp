@@ -214,6 +214,8 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
     que[0].push_front(starting.x);
     que[1].push_front(starting.y);
 
+    cout << ending.x << " " << ending.y << endl;
+
     for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
         for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
@@ -226,8 +228,8 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
         best = 99999;
 
         cout << que[0].size() << endl;
-        for(int i = 0; i <= que[0].size(); i++) {
-            if(que[2][i] <= best && que[2][i] != 0) {
+        for(int i = 0; i < que[0].size(); i++) {
+            if(que[2][i] <= best) {
                 vertx = que[0][i];
                 verty = que[1][i];
                 best = que[2][i];
@@ -301,13 +303,18 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
 
 int main () {
     SDL_Window *win = SDL_CreateWindow("Grid", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED || SDL_RENDERER_PRESENTVSYNC);
+    SDL_Renderer *ren = SDL_CreateRenderer(win, -1, 0);
     SDL_Event e;
     Uint32 starttime, endtime, delta;
     bool quit = false, startingpoint = false, endingpoint = false;
     int maderect[SCREEN_WIDTH / SQUARE][SCREEN_HEIGHT / SQUARE] = {0};
     SDL_Point mouse = {SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2}, starting, ending;
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
+
+    starting.x = -1;
+    starting.y = -1;
+    ending.x = -1;
+    ending.y = -1;
 
     SDL_SetRenderDrawColor(ren, 255, 255, 255, 255);
     SDL_RenderPresent(ren);
@@ -345,21 +352,21 @@ int main () {
                 else if(keystates[SDL_SCANCODE_X]) {
                     if(maderect[mouse.x / SQUARE][mouse.y / SQUARE] == 2) {
                         startingpoint = false;
-                        starting.x = NULL;
-                        starting.y = NULL;
+                        starting.x = -1;
+                        starting.y = -1;
                     }
                     else if (maderect[mouse.x / SQUARE][mouse.y / SQUARE] == 3) {
                         endingpoint = false;
-                        ending.x = NULL;
-                        ending.y = NULL;
+                        ending.x = -1;
+                        ending.y = -1;
                     }
                     maderect[mouse.x / SQUARE][mouse.y / SQUARE] = 0;
                 }
             }
-            if(keystates[SDL_SCANCODE_1] && starting.x != NULL && starting.y != NULL  && ending.x != NULL && ending.y != NULL) {
+            if(keystates[SDL_SCANCODE_1] && starting.x != -1 && ending.x != -1) {
                 bfs(ren, starting, ending, maderect);
             }
-            if(keystates[SDL_SCANCODE_2] && starting.x != NULL && starting.y != NULL  && ending.x != NULL && ending.y != NULL) {
+            if(keystates[SDL_SCANCODE_2] && starting.x != -1 && ending.x != -1) {
                 astar(ren, starting, ending, maderect);
             }
             if(keystates[SDL_SCANCODE_D]) {
@@ -369,20 +376,21 @@ int main () {
                     }
                 }
                 
-                starting.x = NULL;
-                starting.y = NULL;
-                ending.x = NULL;
-                ending.y = NULL;
+                starting.x = -1;
+                starting.y = -1;
+                ending.x = -1;
+                ending.y = -1;
                 startingpoint = false;
                 endingpoint = false;
             }
         }
         endtime = SDL_GetTicks();
         delta = endtime - starttime;
+        /*
         if(delta < FRAMETIME){
             SDL_Delay(FRAMETIME - delta);
         }
-
+        */
         draw(ren, maderect, 0);
     }
 
