@@ -219,7 +219,6 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
             if(maderect[i][x] == 4 || maderect[i][x] == 5)
                 maderect[i][x] = 0;
 
-
     visted[starting.x][starting.y] = true;
     que[2].push_front(pow(ending.x - starting.x, 2) + pow(ending.y - starting.y, 2));
 
@@ -292,6 +291,12 @@ void astar(SDL_Renderer *ren, SDL_Point starting, SDL_Point ending, int maderect
             if(dist[i][x] == 0)
                 dist[i][x] = 999;
     shortestdist(ren, starting, ending, dist, maderect);
+    for(int i = 0; i < SCREEN_WIDTH / SQUARE; i++)
+        for(int x = 0; x < SCREEN_HEIGHT / SQUARE; x++)
+            dist[i][x] = 0;
+    que[0].erase(que[0].begin(), que[0].end());
+    que[1].erase(que[0].begin(), que[0].end());
+    que[2].erase(que[0].begin(), que[0].end());
 }
 
 int main () {
