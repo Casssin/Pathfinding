@@ -1,7 +1,8 @@
 # Pathfinding
 A bad C++ pathfinding algorithm using SDL2
 
-Uses Dijkstra's Algorithm to guarntee the shortest path
+Press 1 to use Dijkstra's Algorithm to guarantee the shortest path
+Press 2 to use A* pathfinding algorithim to guarantee the shortest path (still buggy)
 
 Controls: <br>
 Mouse1: Add walls <br>
