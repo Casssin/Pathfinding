@@ -1,5 +1,5 @@
 # Pathfinding
-A C++ pathfinding algorithm using SDL2 i686 version
+A C++ pathfinding visualization algorithm using SDL2 i686 version
 
 Press 1 to use Dijkstra's Algorithm to guarantee the shortest path <br>
 Press 2 to use A* pathfinding algorithim to guarantee the shortest path
